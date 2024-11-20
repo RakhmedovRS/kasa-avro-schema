@@ -1,0 +1,50 @@
+{
+  "type": "record",
+  "name": "EmeterRealtime",
+  "namespace": "kasa.kp115.avro",
+  "fields": [
+    {
+      "name": "emeter",
+      "type": {
+        "type": "record",
+        "name": "Emeter",
+        "fields": [
+          {
+            "name": "get_realtime",
+            "type": {
+              "type": "record",
+              "name": "GetRealtime",
+              "fields": [
+                {
+                  "name": "current_ma",
+                  "type": "int",
+                  "doc": "Current electric current in Milliamps"
+                },
+                {
+                  "name": "voltage_mv",
+                  "type": "int",
+                  "doc": "Current voltage in Millivolts"
+                },
+                {
+                  "name": "power_mw",
+                  "type": "int",
+                  "doc": "Current power consumption in Milliwatts"
+                },
+                {
+                  "name": "total_wh",
+                  "type": "int",
+                  "doc": "Total power consumption in Watt-hours"
+                },
+                {
+                  "name": "err_code",
+                  "type": "int",
+                  "doc": "Error code"
+                }
+              ]
+            }
+          }
+        ]
+      }
+    }
+  ]
+}
