@@ -4,6 +4,8 @@ on:
   push:
     branches:
       - main
+    tags:
+      - 'v*' # Trigger on tags like v1.0.0
   workflow_dispatch:
 
 jobs:
@@ -27,13 +29,13 @@ jobs:
         uses: actions/cache@v3
         with:
           path: ~/.m2/repository
-          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml', '**/maven.settings.xml') }}
           restore-keys: |
             ${{ runner.os }}-maven
 
-      # Build the project
+      # Build the project and run tests
       - name: Build with Maven
-        run: mvn clean package -DskipTests
+        run: mvn clean verify
 
       # Archive the build artifact
       - name: Upload build artifact
@@ -61,11 +63,12 @@ jobs:
       - name: Create GitHub Release
         uses: ncipollo/release-action@v1
         with:
-          artifacts: kasa-kp115-avro/*.jar
+          artifacts: target/*.jar
           token: ${{ secrets.GITHUB_TOKEN }}
           tag: ${{ github.ref_name }}
-          releaseName: Release ${{ github.ref_name }}
+          name: Release ${{ github.ref_name }}
           body: |
-            Release notes for version ${{ github.ref_name }}.
+            ### Changelog
+            - Build artifact uploaded for version `${{ github.ref_name }}`
           draft: false
           prerelease: false
