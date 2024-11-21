@@ -1,14 +1,20 @@
-name: Build and Release Avro schema project
+name: Build and Release Avro Schema Project
 
+# Workflow triggers
 on:
   push:
     branches:
       - main
     tags:
-      - 'v*' # Trigger on tags like v1.0.0
+      - 'v*' # Trigger only for tags starting with 'v'
   workflow_dispatch:
 
+# Set permissions for the workflow
+permissions:
+  contents: write # Ensure the workflow can create releases and update artifacts
+
 jobs:
+  # Build job
   build:
     runs-on: ubuntu-latest
 
@@ -44,6 +50,7 @@ jobs:
           name: kasa-kp115-avro
           path: target/*.jar
 
+  # Release job
   release:
     runs-on: ubuntu-latest
     needs: build
@@ -72,3 +79,15 @@ jobs:
             - Build artifact uploaded for version `${{ github.ref_name }}`
           draft: false
           prerelease: false
+          generateReleaseNotes: false
+          makeLatest: legacy
+          omitBody: false
+          omitBodyDuringUpdate: false
+          omitDraftDuringUpdate: false
+          omitName: false
+          omitNameDuringUpdate: false
+          omitPrereleaseDuringUpdate: false
+          removeArtifacts: false
+          replacesArtifacts: true
+          skipIfReleaseExists: false
+          updateOnlyUnreleased: false
