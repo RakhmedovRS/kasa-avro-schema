@@ -39,7 +39,7 @@ jobs:
       - name: Upload build artifact
         uses: actions/upload-artifact@v3
         with:
-          name: spring-app
+          name: kasa-kp115-avro
           path: target/*.jar
 
   release:
@@ -55,13 +55,13 @@ jobs:
       - name: Download build artifact
         uses: actions/download-artifact@v3
         with:
-          name: spring-app
+          name: kasa-kp115-avro
 
       # Create a GitHub Release
       - name: Create GitHub Release
         uses: ncipollo/release-action@v1
         with:
-          artifacts: spring-app/*.jar
+          artifacts: kasa-kp115-avro/*.jar
           token: ${{ secrets.GITHUB_TOKEN }}
           tag: ${{ github.ref_name }}
           releaseName: Release ${{ github.ref_name }}
