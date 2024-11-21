@@ -50,7 +50,7 @@ jobs:
       - name: Upload JAR artifact
         uses: actions/upload-artifact@v3
         with:
-          name: avro-schema-jar
+          name: kasa-avro-schema
           path: target/*.jar
 
   # Release job
@@ -67,7 +67,7 @@ jobs:
       - name: Download JAR artifact
         uses: actions/download-artifact@v3
         with:
-          name: avro-schema-jar
+          name: kasa-avro-schema
 
       # Generate a unique tag
       - name: Generate unique tag
@@ -78,7 +78,7 @@ jobs:
       - name: Create GitHub Release
         uses: ncipollo/release-action@v1
         with:
-          artifacts: avro-schema-jar/target/*.jar
+          artifacts: kasa-avro-schema/target/*.jar
           token: ${{ secrets.GITHUB_TOKEN }}
           tag: ${{ env.tag }}
           name: Release ${{ env.tag }}
