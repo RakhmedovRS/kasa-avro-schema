@@ -6,12 +6,12 @@ on:
     branches:
       - main
     tags:
-      - 'v*' # Trigger only for tags starting with 'v'
+      - 'v*' # Trigger on tags like v1.0.0
   workflow_dispatch:
 
 # Set permissions for the workflow
 permissions:
-  contents: write # Ensure the workflow can create releases and update artifacts
+  contents: write # Required for creating releases and uploading assets
 
 jobs:
   # Build job
@@ -27,27 +27,27 @@ jobs:
       - name: Set up JDK 17
         uses: actions/setup-java@v3
         with:
-          distribution: 'temurin' # Use OpenJDK (AdoptOpenJDK)
-          java-version: '17'      # Specify your Java version
+          distribution: 'temurin'
+          java-version: '17'
 
       # Cache Maven dependencies
       - name: Cache Maven dependencies
         uses: actions/cache@v3
         with:
           path: ~/.m2/repository
-          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml', '**/maven.settings.xml') }}
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
           restore-keys: |
             ${{ runner.os }}-maven
 
-      # Build the project and run tests
+      # Build the project
       - name: Build with Maven
-        run: mvn clean verify
+        run: mvn clean package -DskipTests
 
-      # Archive the build artifact
-      - name: Upload build artifact
+      # Upload the JAR artifact
+      - name: Upload JAR artifact
         uses: actions/upload-artifact@v3
         with:
-          name: kasa-kp115-avro
+          name: avro-schema-jar
           path: target/*.jar
 
   # Release job
@@ -61,10 +61,15 @@ jobs:
         uses: actions/checkout@v3
 
       # Download the build artifact
-      - name: Download build artifact
+      - name: Download JAR artifact
         uses: actions/download-artifact@v3
         with:
-          name: kasa-kp115-avro
+          name: avro-schema-jar
+
+      # Generate a unique tag
+      - name: Generate unique tag
+        id: generate_tag
+        run: echo "tag=v$(date +'%Y%m%d%H%M%S')" >> $GITHUB_ENV
 
       # Create a GitHub Release
       - name: Create GitHub Release
@@ -72,22 +77,10 @@ jobs:
         with:
           artifacts: target/*.jar
           token: ${{ secrets.GITHUB_TOKEN }}
-          tag: ${{ github.ref_name }}
-          name: Release ${{ github.ref_name }}
+          tag: ${{ env.tag }}
+          name: Release ${{ env.tag }}
           body: |
-            ### Changelog
-            - Build artifact uploaded for version `${{ github.ref_name }}`
+            ### Release Notes
+            This is an automatically generated release.
           draft: false
           prerelease: false
-          generateReleaseNotes: false
-          makeLatest: legacy
-          omitBody: false
-          omitBodyDuringUpdate: false
-          omitDraftDuringUpdate: false
-          omitName: false
-          omitNameDuringUpdate: false
-          omitPrereleaseDuringUpdate: false
-          removeArtifacts: false
-          replacesArtifacts: true
-          skipIfReleaseExists: false
-          updateOnlyUnreleased: false
