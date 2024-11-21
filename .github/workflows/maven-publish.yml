@@ -43,12 +43,15 @@ jobs:
       - name: Build with Maven
         run: mvn clean package -DskipTests
 
+      - name: List files in target directory
+        run: ls -al target/
+
       # Upload the JAR artifact
       - name: Upload JAR artifact
         uses: actions/upload-artifact@v3
         with:
           name: avro-schema-jar
-          path: avro-schema-jar/target/*.jar
+          path: target/*.jar
 
   # Release job
   release:
