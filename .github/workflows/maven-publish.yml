@@ -43,6 +43,9 @@ jobs:
       - name: Build with Maven
         run: mvn clean package -DskipTests
 
+      - name: Current dir
+        run: pwd
+
       - name: List files in target directory
         run: ls -al target/
 
@@ -63,6 +66,12 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
+      - name: Current dir
+        run: pwd
+
+      - name: List files in target directory
+        run: ls -al target/
+
       # Download the build artifact
       - name: Download JAR artifact
         uses: actions/download-artifact@v3
@@ -73,6 +82,12 @@ jobs:
       - name: Generate unique tag
         id: generate_tag
         run: echo "tag=v$(date +'%Y%m%d%H%M%S')" >> $GITHUB_ENV
+
+      - name: Current dir
+        run: pwd
+
+      - name: List files in target directory
+        run: ls -al target/
 
       # Create a GitHub Release
       - name: Create GitHub Release
