@@ -95,8 +95,8 @@ jobs:
         with:
           artifacts: ./*.jar
           token: ${{ secrets.GITHUB_TOKEN }}
-          tag: ${{ env.tag }}
-          name: Release ${{ env.tag }}
+          tag: release-${{ env.tag }}
+          name: release-${{ env.tag }}
           body: |
             ### Release Notes
             This is an automatically generated release.
