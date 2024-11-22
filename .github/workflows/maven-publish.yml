@@ -87,13 +87,13 @@ jobs:
         run: pwd
 
       - name: List files in target directory
-        run: ls -al target/
+        run: ls -al
 
       # Create a GitHub Release
       - name: Create GitHub Release
         uses: ncipollo/release-action@v1
         with:
-          artifacts: kasa-avro-schema/target/*.jar
+          artifacts: ./*.jar
           token: ${{ secrets.GITHUB_TOKEN }}
           tag: ${{ env.tag }}
           name: Release ${{ env.tag }}
