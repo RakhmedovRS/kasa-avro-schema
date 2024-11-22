@@ -70,7 +70,7 @@ jobs:
         run: pwd
 
       - name: List files in target directory
-        run: ls -al target/
+        run: ls -al
 
       # Download the build artifact
       - name: Download JAR artifact
