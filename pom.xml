@@ -10,9 +10,9 @@
         <version>2.4.3</version>
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
-    <groupId>kasa.kp115.avro</groupId>
-    <artifactId>kasa-kp115-avro</artifactId>
-    <version>1.0-SNAPSHOT</version>
+    <groupId>RakhmedovRS</groupId>
+    <artifactId>kasa-avro-schema</artifactId>
+    <version>1.0</version>
 
     <properties>
         <maven.compiler.source>11</maven.compiler.source>
@@ -39,15 +39,16 @@
         </dependency>
     </dependencies>
 
+    <distributionManagement>
+        <repository>
+            <id>github</id>
+            <name>GitHub RakhmedovRS Apache Maven Packages</name>
+            <url>https://maven.pkg.github.com/</url>
+        </repository>
+    </distributionManagement>
+
     <build>
         <plugins>
-            <plugin>
-                <groupId>org.springframework.boot</groupId>
-                <artifactId>spring-boot-maven-plugin</artifactId>
-                <configuration>
-                    <mainClass>kasa.kp115.KasaKp115Application</mainClass>
-                </configuration>
-            </plugin>
             <plugin>
                 <groupId>org.apache.avro</groupId>
                 <artifactId>avro-maven-plugin</artifactId>
@@ -59,7 +60,7 @@
                             <goal>schema</goal>
                         </goals>
                         <configuration>
-                            <sourceDirectory>${project.basedir}/src/main/java/kasa/kp115/avro/</sourceDirectory>
+                            <sourceDirectory>src/main/java/com/github/RakhmedovRS/kasa/kp115/</sourceDirectory>
                             <outputDirectory>${project.basedir}/src/main/java/</outputDirectory>
                         </configuration>
                     </execution>

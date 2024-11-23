@@ -1,7 +1,7 @@
 {
   "type": "record",
   "name": "EmeterRealtime",
-  "namespace": "kasa.kp115.avro",
+  "namespace": "com.github.RakhmedovRS.kasa.kp115",
   "fields": [
     {
       "name": "emeter",
