@@ -4,15 +4,33 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
+    <name>Kasa Avro Schema</name>
+    <description>Schema definitions for Kasa KP115 integration</description>
+    <url>https://github.com/RakhmedovRS/kasa-kp115-avro</url>
+    <licenses>
+        <license>
+            <name>Apache License, Version 2.0</name>
+            <url>http://www.apache.org/licenses/LICENSE-2.0.html</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
+    <developers>
+        <developer>
+            <id>RakhmedovRS</id>
+            <name>Ruslan Rakhmedov</name>
+            <email>rakhmedovrs@gmail.com</email>
+        </developer>
+    </developers>
+
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
         <version>2.4.3</version>
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
-    <groupId>RakhmedovRS</groupId>
+    <groupId>kasa-avro-schema</groupId>
     <artifactId>kasa-avro-schema</artifactId>
-    <version>1.0</version>
+    <version>1.0-SNAPSHOT</version>
 
     <properties>
         <maven.compiler.source>11</maven.compiler.source>
@@ -43,7 +61,7 @@
         <repository>
             <id>github</id>
             <name>GitHub RakhmedovRS Apache Maven Packages</name>
-            <url>https://maven.pkg.github.com/</url>
+            <url>https://maven.pkg.github.com/RakhmedovRS/kasa-avro-schema</url>
         </repository>
     </distributionManagement>
 
@@ -60,8 +78,8 @@
                             <goal>schema</goal>
                         </goals>
                         <configuration>
-                            <sourceDirectory>src/main/java/com/github/RakhmedovRS/kasa/kp115/</sourceDirectory>
-                            <outputDirectory>${project.basedir}/src/main/java/</outputDirectory>
+                            <sourceDirectory>${project.basedir}/src/main/java/com/github/RakhmedovRS/kasa/kp115/</sourceDirectory>
+                            <outputDirectory>${project.build.directory}/generated-sources/avro</outputDirectory>
                         </configuration>
                     </execution>
                 </executions>
@@ -74,7 +92,11 @@
                     <target>11</target>
                 </configuration>
             </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-deploy-plugin</artifactId>
+                <version>3.0.0-M1</version>
+            </plugin>
         </plugins>
     </build>
-
 </project>
