@@ -30,7 +30,7 @@
     </parent>
     <groupId>kasa-avro-schema</groupId>
     <artifactId>kasa-avro-schema</artifactId>
-    <version>1.2-SNAPSHOT</version>
+    <version>1.0-SNAPSHOT</version>
 
     <properties>
         <maven.compiler.source>11</maven.compiler.source>
