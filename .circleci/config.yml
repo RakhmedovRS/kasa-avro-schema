@@ -10,7 +10,15 @@ jobs:
   build:
     executor: java-executor
     steps:
-      - checkout
+      # Checkout using HTTPS + token
+      - checkout:
+          path: ~/project
+
+      # Configure Git to use token for private repo checkout
+      - run:
+          name: Setup GitHub token for private repos
+          command: |
+            git remote set-url origin https://$GH_TOKEN@github.com/RakhmedovRS/kasa-avro-schema.git
 
       # Restore Maven dependencies cache
       - restore_cache:
