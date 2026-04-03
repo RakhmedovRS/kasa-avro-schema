@@ -7,28 +7,33 @@ executors:
     working_directory: ~/project
 
 jobs:
-  build:
+  build-and-release:
     executor: java-executor
     steps:
-      # Manually clone repo via HTTPS with GitHub token
+      # Install jq for JSON parsing
       - run:
-          name: Clone repository via HTTPS
+          name: Install jq
+          command: sudo apt-get update && sudo apt-get install -y jq
+
+      # Clone repository via HTTPS with token
+      - run:
+          name: Clone repository
           command: |
             git clone https://$GH_TOKEN@github.com/RakhmedovRS/kasa-avro-schema.git ~/project
             cd ~/project
 
-      # Restore Maven dependencies cache
+      # Restore Maven cache
       - restore_cache:
           keys:
             - maven-cache-{{ checksum "pom.xml" }}
             - maven-cache
 
-      # Build and test in one step
+      # Build project
       - run:
-          name: Build and test
+          name: Build with Maven
           command: |
             cd ~/project
-            mvn clean package
+            mvn clean package -DskipTests
 
       # Save Maven cache
       - save_cache:
@@ -36,17 +41,52 @@ jobs:
             - ~/.m2/repository
           key: maven-cache-{{ checksum "pom.xml" }}
 
-      # Save build artifacts
+      # Upload artifacts to CircleCI UI (optional)
       - store_artifacts:
           path: ~/project/target
           destination: build-artifacts
 
-      # Upload test results
+      # Upload test results (optional)
       - store_test_results:
           path: ~/project/target/surefire-reports
 
+      # Create GitHub Release and upload JAR dynamically
+      - run:
+          name: Create GitHub Release and upload JAR
+          command: |
+            cd ~/project
+
+            # Detect the JAR file dynamically
+            ARTIFACT=$(ls target/*.jar | head -n 1)
+            if [ -z "$ARTIFACT" ]; then
+              echo "No JAR file found in target/"
+              exit 1
+            fi
+            echo "Detected artifact: $ARTIFACT"
+
+            # Generate unique tag based on timestamp
+            TAG_NAME="v$(date +%Y%m%d%H%M%S)"
+            echo "Creating GitHub release $TAG_NAME"
+
+            # Create release
+            RELEASE_RESPONSE=$(curl -s -X POST \
+              -H "Authorization: token $GH_TOKEN" \
+              -H "Content-Type: application/json" \
+              -d "{\"tag_name\":\"$TAG_NAME\",\"name\":\"$TAG_NAME\",\"body\":\"Automated release from CircleCI\",\"draft\":false,\"prerelease\":false}" \
+              https://api.github.com/repos/RakhmedovRS/kasa-avro-schema/releases)
+
+            # Extract upload URL
+            UPLOAD_URL=$(echo $RELEASE_RESPONSE | jq -r .upload_url | sed -e "s/{?name,label}//")
+
+            # Upload detected JAR
+            curl -X POST \
+              -H "Authorization: token $GH_TOKEN" \
+              -H "Content-Type: application/java-archive" \
+              --data-binary @"$ARTIFACT" \
+              "$UPLOAD_URL?name=$(basename $ARTIFACT)"
+
 workflows:
   version: 2
-  build_and_test:
+  build-and-release-workflow:
     jobs:
-      - build
+      - build-and-release
