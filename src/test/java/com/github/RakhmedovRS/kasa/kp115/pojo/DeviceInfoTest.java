@@ -6,7 +6,7 @@ import org.junit.jupiter.api.Test;
 class DeviceInfoTest {
     @Test
     public void testGettingFullName(){
-        DeviceInfo deviceInfo = new DeviceInfo("10.0.0.0", "dummy");
-        Assertions.assertEquals("dummy(10.0.0.0)", deviceInfo.getFullDeviceName());
+        DeviceInfo deviceInfo = new DeviceInfo("10.0.0.0", "dummy", "dummy");
+        Assertions.assertEquals("dummy(dummy:10.0.0.0)", deviceInfo.getFullDeviceName());
     }
 }
