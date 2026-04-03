@@ -3,7 +3,7 @@ version: 2.1
 executors:
   java-executor:
     docker:
-      - image: circleci/openjdk:17-jdk
+      - image: cimg/openjdk:17.0
     working_directory: ~/project
 
 jobs:
@@ -12,34 +12,24 @@ jobs:
     steps:
       - checkout
 
-      # Cache dependencies to speed up builds
+      # Restore Maven dependencies cache
       - restore_cache:
           keys:
             - maven-cache-{{ checksum "pom.xml" }}
             - maven-cache
 
-      # Install dependencies
+      # Build and test in one step
       - run:
-          name: Install dependencies
-          command: mvn dependency:resolve dependency:resolve-plugins
-
-      # Save dependencies to cache
-      - save_cache:
-          paths:
-            - ~/.m2
-          key: maven-cache-{{ checksum "pom.xml" }}
-
-      # Run tests
-      - run:
-          name: Run tests
-          command: mvn test
-
-      # Build the application
-      - run:
-          name: Build application
+          name: Build and test
           command: mvn clean package
 
-      # Save artifacts (e.g., JAR file)
+      # Save Maven cache
+      - save_cache:
+          paths:
+            - ~/.m2/repository
+          key: maven-cache-{{ checksum "pom.xml" }}
+
+      # Save build artifacts
       - store_artifacts:
           path: target
           destination: build-artifacts
