@@ -20,7 +20,6 @@ jobs:
           name: Clone repository
           command: |
             git clone https://$GH_TOKEN@github.com/RakhmedovRS/kasa-avro-schema.git ~/project
-            cd ~/project
 
       # Restore Maven cache
       - restore_cache:
@@ -41,73 +40,65 @@ jobs:
             - ~/.m2/repository
           key: maven-cache-{{ checksum "pom.xml" }}
 
-      # Upload artifacts to CircleCI UI (optional)
+      # Store artifacts in CircleCI (optional)
       - store_artifacts:
           path: ~/project/target
           destination: build-artifacts
 
-      # Upload test results (optional)
+      # Store test results (optional)
       - store_test_results:
           path: ~/project/target/surefire-reports
 
-      # Create GitHub Release and upload JAR dynamically
+      # Create GitHub Release and upload JAR
       - run:
           name: Create GitHub Release and upload JAR
           command: |
             cd ~/project
 
-            # Detect the JAR file dynamically
             ARTIFACT=$(ls target/*.jar | head -n 1)
             if [ -z "$ARTIFACT" ]; then
-              echo "No JAR file found in target/"
+              echo "No JAR found"
               exit 1
             fi
-            echo "Detected artifact: $ARTIFACT"
 
-            # Generate unique tag based on timestamp
             TAG_NAME="v$(date +%Y%m%d%H%M%S)"
-            echo "Creating GitHub release $TAG_NAME"
+            echo "Creating release $TAG_NAME"
 
-            # Create release
-            RELEASE_RESPONSE=$(curl -s -X POST \
+            RESPONSE=$(curl -s -X POST \
               -H "Authorization: token $GH_TOKEN" \
               -H "Content-Type: application/json" \
-              -d "{\"tag_name\":\"$TAG_NAME\",\"name\":\"$TAG_NAME\",\"body\":\"Automated release from CircleCI\",\"draft\":false,\"prerelease\":false}" \
+              -d "{\"tag_name\":\"$TAG_NAME\",\"name\":\"$TAG_NAME\"}" \
               https://api.github.com/repos/RakhmedovRS/kasa-avro-schema/releases)
 
-            # Extract upload URL
-            UPLOAD_URL=$(echo $RELEASE_RESPONSE | jq -r .upload_url | sed -e "s/{?name,label}//")
+            UPLOAD_URL=$(echo $RESPONSE | jq -r .upload_url | sed 's/{?name,label}//')
 
-            # Upload detected JAR
             curl -X POST \
               -H "Authorization: token $GH_TOKEN" \
               -H "Content-Type: application/java-archive" \
               --data-binary @"$ARTIFACT" \
               "$UPLOAD_URL?name=$(basename $ARTIFACT)"
 
-      # Configure Maven for GitHub Packages
+      # Configure Maven for GitHub Packages (NO <<EOF issue)
       - run:
-          name: Configure Maven for GitHub Packages
+          name: Configure Maven
           command: |
             mkdir -p ~/.m2
-            cat > ~/.m2/settings.xml <<EOF
-            <settings>
-              <servers>
-                <server>
-                  <id>github</id>
-                  <username>RakhmedovRS</username>
-                  <password>${GH_TOKEN}</password>
-                </server>
-              </servers>
-            </settings>
-            EOF
+            printf '<settings>\n\
+  <servers>\n\
+  <server>\n\
+  <id>github</id>\n\
+  <username>RakhmedovRS</username>\n\
+  <password>%s</password>\n\
+  </server>\n\
+  </servers>\n\
+  </settings>\n' "$GH_TOKEN" > ~/.m2/settings.xml
 
-      # Deploy JAR to GitHub Packages
-      - run:
-          name: Deploy to GitHub Packages
-          command: |
-            cd ~/project
-            mvn deploy -DskipTests
+# Deploy to GitHub Packages
+- run:
+    name: Deploy to GitHub Packages
+    command: |
+      cd ~/project
+      mvn deploy -DskipTests
 
 workflows:
   version: 2
