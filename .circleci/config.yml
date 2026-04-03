@@ -85,6 +85,30 @@ jobs:
               --data-binary @"$ARTIFACT" \
               "$UPLOAD_URL?name=$(basename $ARTIFACT)"
 
+      # Configure Maven for GitHub Packages
+      - run:
+          name: Configure Maven for GitHub Packages
+          command: |
+            mkdir -p ~/.m2
+            cat > ~/.m2/settings.xml <<EOF
+            <settings>
+              <servers>
+                <server>
+                  <id>github</id>
+                  <username>RakhmedovRS</username>
+                  <password>${GH_TOKEN}</password>
+                </server>
+              </servers>
+            </settings>
+            EOF
+
+      # Deploy JAR to GitHub Packages
+      - run:
+          name: Deploy to GitHub Packages
+          command: |
+            cd ~/project
+            mvn deploy -DskipTests
+
 workflows:
   version: 2
   build-and-release-workflow:
